@@ -3,6 +3,11 @@ from core.agent import Agent
 from core.memory import Memory
 from services.formatter import format_task_output
 
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 agent = Agent()
 memory = Memory()
 
