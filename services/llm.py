@@ -1,22 +1,19 @@
-from groq import Groq
+from openai import OpenAI
 import streamlit as st
 
 def generate_response(prompt):
     try:
-        api_key = st.secrets.get("GROQ_API_KEY")
-
-        if not api_key:
-            return "❌ GROQ_API_KEY not found in secrets"
-
-        client = Groq(api_key=api_key)
-
-        model = "mixtral-8x7b-32768"   # MOST STABLE MODEL
+        client = OpenAI(
+            api_key=st.secrets["OPENROUTER_API_KEY"],
+            base_url="https://openrouter.ai/api/v1"
+        )
 
         response = client.chat.completions.create(
+            model="openai/gpt-3.5-turbo",  # FREE & STABLE
             messages=[
+                {"role": "system", "content": "You are a helpful AI assistant."},
                 {"role": "user", "content": prompt}
-            ],
-            model=model
+            ]
         )
 
         return response.choices[0].message.content
