@@ -6,6 +6,14 @@ class Memory:
         self.conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         self.create_table()
 
+    import sqlite3
+from config import DB_PATH
+
+class Memory:
+    def __init__(self):
+        self.conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+        self.create_table()
+
     def create_table(self):
         self.conn.execute("""
         CREATE TABLE IF NOT EXISTS history (
@@ -22,18 +30,12 @@ class Memory:
         )
         self.conn.commit()
 
-    def fetch_all(self):
-        return self.conn.execute("SELECT * FROM history").fetchall()
-        
-        
-def fetch_recent(self, limit=5):
-    return self.conn.execute(
-        "SELECT user_input, response FROM history ORDER BY id DESC LIMIT ?",
-        (limit,)
-    ).fetchall()
+    def fetch_recent(self, limit=5):
+        return self.conn.execute(
+            "SELECT user_input, response FROM history ORDER BY id DESC LIMIT ?",
+            (limit,)
+        ).fetchall()
 
-
-history = memory.fetch_recent()
 
 context = "\n".join([f"User: {h[0]} AI: {h[1]}" for h in history])
 
