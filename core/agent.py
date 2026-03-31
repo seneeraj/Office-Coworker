@@ -16,3 +16,13 @@ def process(self, user_input, file_text=None):
     response = generate_response(prompt)
 
     return {"mode": "chat", "response": response}
+
+class Agent:
+    def __init__(self):
+        pass
+
+    def process(self, user_input, file_text=None):
+        return {
+            "mode": "chat",
+            "response": f"Agent working for: {user_input}"
+        }
