@@ -1,22 +1,27 @@
 from groq import Groq
 import streamlit as st
 
-def get_client():
-    return Groq(api_key=st.secrets["GROQ_API_KEY"])
-
 def generate_response(prompt):
-    try:
-        client = get_client()
+    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "You are a helpful AI assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            model="llama-3.1-70b-versatile"
-        )
+    models = [
+        "llama-3.3-8b-instant",   # primary
+        "mixtral-8x7b-32768",    # fallback
+    ]
 
-        return chat_completion.choices[0].message.content
+    for model in models:
+        try:
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "You are a helpful AI assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                model=model
+            )
 
-    except Exception as e:
-        return f"Error: {str(e)}"
+            return chat_completion.choices[0].message.content
+
+        except Exception as e:
+            continue
+
+    return "(Error) All models failed. Please try again."
