@@ -68,7 +68,7 @@ with col2:
         if not user_input:
             st.warning("Please enter a task")
         else:
-            result = agent.process(user_input, file_text)
+            result = agent.process(user_input, file_text, memory)
 
             # TASK MODE OUTPUT
             if result["mode"] == "task":
