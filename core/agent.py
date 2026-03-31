@@ -1,28 +1,42 @@
-from core.rag import simple_rag
-
-def process(self, user_input, file_text=None):
-    skill = self.skill_engine.match_skill(user_input)
-
-    if skill:
-        results = self.executor.run_steps(skill["steps"])
-        return {"mode": "task", "skill": skill["name"], "results": results}
-
-    # RAG Mode
-    if file_text:
-        prompt = simple_rag(user_input, file_text)
-    else:
-        prompt = user_input
-
-    response = generate_response(prompt)
-
-    return {"mode": "chat", "response": response}
+from core.skill_engine import SkillEngine
+from core.executor import Executor
+from services.llm import generate_response
 
 class Agent:
     def __init__(self):
-        pass
+        self.skill_engine = SkillEngine()
+        self.executor = Executor()
 
-    def process(self, user_input, file_text=None):
+    def process(self, user_input, file_text=None, memory=None):
+        # 1. Try skill
+        skill = self.skill_engine.match_skill(user_input)
+
+        if skill:
+            results = self.executor.run_steps(skill["steps"], user_input)
+            return {
+                "mode": "task",
+                "skill": skill["name"],
+                "results": results
+            }
+
+        # 2. Build context from memory
+        context = ""
+        if memory:
+            history = memory.fetch_recent()
+            context = "\n".join(
+                [f"User: {h[0]} AI: {h[1]}" for h in history]
+            )
+
+        # 3. Add file context (RAG)
+        if file_text:
+            context += f"\n\nDocument:\n{file_text[:2000]}"
+
+        # 4. Final prompt
+        final_prompt = f"{context}\nUser: {user_input}"
+
+        response = generate_response(final_prompt)
+
         return {
             "mode": "chat",
-            "response": f"Agent working for: {user_input}"
+            "response": response
         }
