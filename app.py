@@ -30,60 +30,61 @@ st.title("🚀 Clarity AI Workspace")
 # -----------------------------
 # FILE UPLOAD (TOP)
 # -----------------------------
-uploaded_file = st.file_uploader("📂 Upload a document")
-
-file_text = ""
-
-if uploaded_file:
-    try:
-        file_text = uploaded_file.read().decode("utf-8")
-        st.success("File loaded successfully")
-    except:
-        file_text = ""
-        st.error("Unsupported file format")
+# -----------------------------
+# CHAT HISTORY INIT
+# -----------------------------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # -----------------------------
-# LAYOUT
+# SIDEBAR
 # -----------------------------
-col1, col2 = st.columns([1, 2])
+with st.sidebar:
+    st.title("🧠 Clarity AI")
+
+    if st.button("➕ New Chat"):
+        st.session_state.messages = []
+
+    st.markdown("---")
+    st.write("Modes")
+    mode = st.radio("Select Mode", ["Task", "Chat"])
 
 # -----------------------------
-# LEFT PANEL (Controls)
+# MAIN CHAT UI
 # -----------------------------
-with col1:
-    st.subheader("🧠 Controls")
+st.title("💬 Clarity AI Workspace")
 
-    mode = st.radio("Mode", ["Task", "Chat"])
-    use_case = st.selectbox("Use Case", ["General", "Business", "Finance"])
+# Display chat history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
-# -----------------------------
-# RIGHT PANEL (Workspace)
-# -----------------------------
-with col2:
-    st.subheader("💬 Workspace")
+# User input
+user_input = st.chat_input("Type your message...")
 
-    user_input = st.text_input("Enter your task")
+if user_input:
+    # Show user message
+    st.session_state.messages.append({"role": "user", "content": user_input})
 
-    if st.button("Run"):
-        if not user_input:
-            st.warning("Please enter a task")
-        else:
-            result = agent.process(user_input, file_text, memory)
+    with st.chat_message("user"):
+        st.markdown(user_input)
 
-            # TASK MODE OUTPUT
-            if result["mode"] == "task":
-                st.success(f"Executed: {result['skill']}")
+    # Generate AI response
+    result = agent.process(user_input, file_text, memory)
 
-                output = format_task_output(result["skill"], result["results"])
-                st.json(output)
+    if result["mode"] == "task":
+        output = format_task_output(result["skill"], result["results"])
+        response = str(output)
+    else:
+        response = result["response"]
 
-                memory.save(user_input, str(output))
+    # Show AI message
+    with st.chat_message("assistant"):
+        st.markdown(response)
 
-            # CHAT MODE OUTPUT
-            else:
-                st.write(result["response"])
+    st.session_state.messages.append({"role": "assistant", "content": response})
 
-                memory.save(user_input, result["response"])
+    memory.save(user_input, response)
 
 # -----------------------------
 # DEBUG (OPTIONAL)
