@@ -1,0 +1,11 @@
+name: report-generator
+
+triggers:
+  - "report"
+  - "generate report"
+
+steps:
+  - Collect data
+  - Analyze trends
+  - Generate insights
+  - Create summary

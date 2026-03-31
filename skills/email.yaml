@@ -1,0 +1,11 @@
+name: email-writer
+
+triggers:
+  - "write email"
+  - "draft email"
+
+steps:
+  - Understand purpose
+  - Draft email
+  - Improve tone
+  - Finalize email
