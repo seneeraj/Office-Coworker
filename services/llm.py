@@ -13,7 +13,7 @@ def generate_response(prompt):
                 {"role": "system", "content": "You are a helpful AI assistant."},
                 {"role": "user", "content": prompt}
             ],
-            model="llama3-70b-8192"
+            model="model="llama3-8b-8192"
         )
 
         return chat_completion.choices[0].message.content
